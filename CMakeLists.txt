@@ -3,4 +3,4 @@ project(laba5)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(laba5 1laba/lyb/checks.c 1laba/lyb/memory.c 1laba/lyb/menu.c 1laba/lyb/other.c 1laba/lyb/cache.c)
+add_executable(laba5 5laba/lyb/checks.c 5laba/lyb/memory.c 5laba/lyb/menu.c 5laba/lyb/other.c 5laba/lyb/cache.c)
