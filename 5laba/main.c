@@ -1,4 +1,4 @@
-#include "lyb/function.h"
+#include "lyb/functions.h"
 
 int main() {
 
