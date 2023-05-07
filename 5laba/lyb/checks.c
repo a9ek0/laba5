@@ -1,5 +1,5 @@
 #include "checks.h"
-int validate_ip_address_s(const char *ip_address) {
+int validate_ip_address(const char *ip_address) {
     char *temp = _strdup(ip_address);
     if (strchr(ip_address, '.') != NULL || strchr(ip_address, ':') != NULL) {
         free(temp);
