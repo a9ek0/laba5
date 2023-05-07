@@ -78,10 +78,7 @@ void put(CACHE *cache, const char *key, const char *value) {
         cache->head = node;
         cache->tail->next = NULL;
     }
-    //cache->head = node;
     int hash_val = calculate_hash(key);
-    //node->next = cache->hash[hash_val];
-    //node->prev = NULL;
     if (cache->hash[hash_val] == NULL) {
         cache->hash[hash_val] = node;
     }else{
@@ -97,7 +94,8 @@ void put(CACHE *cache, const char *key, const char *value) {
     } else {
         cache->size++;
     }
-    cache->tail->next = NULL;
+    if(cache->tail != NULL)
+        cache->tail->next = NULL;
 }
 
 void dell_tail(CACHE *cache) {
@@ -184,19 +182,7 @@ char *find_in_cache(const char *key, const CACHE *cache) {
     return NULL;
 }
 
-/*NODE *find_in_cache(const char *key, const CACHE *cache) {
-    NODE *tmp = cache->head;
-    int hash = calculate_hash(key);
-    if(tmp == NULL)
-        return NULL;
-    for (int i = 0; i < cache->size; ++i) {
-        if(strcmp(tmp->key, key) == 0) {
-            return tmp;
-        }
-        tmp = tmp->next;
-    }
-    return NULL;
-}*/
+
 
 void print_cache(const CACHE *cache) {
     NODE *node = cache->head;
@@ -250,7 +236,6 @@ void update_position(CACHE **cache, const char *value){
 char* get(CACHE *cache, const char *key) {
     int hash_val = calculate_hash(key);
     NODE *node = cache->hash[hash_val];
-    //printf("\n== %s\n", node->value);
     while (node != NULL) {
         if (strcmp(node->key, key) == 0) {
             if (node != cache->head) {

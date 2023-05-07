@@ -6,10 +6,12 @@ int validate_ip_address(const char *ip_address) {
         return 0;
     }
     int dots_count = 0;
-    const char *token = strtok(temp, ".");
+    const char *token;
+    char *save_ptr;
+    token = strtok_r(NULL, ".", &save_ptr);
     while (token != NULL) {
         dots_count++;
-        int len = strlen(token);
+        size_t len = strlen(token);
         if (len == 0) {
             free(temp);
             return 0;
@@ -26,7 +28,7 @@ int validate_ip_address(const char *ip_address) {
             free(temp);
             return 0;
         }
-        token = strtok(NULL, ".");
+        token = strtok_r(NULL, ".", &save_ptr);
     }
     free(temp);
     if (dots_count != 4) {

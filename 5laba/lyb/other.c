@@ -88,6 +88,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
             file = fopen(file_name, "at");
             if(file == NULL)
             {
+                free(buff_ip);
                 free(buff_domain);
                 free(choose);
                 return;
@@ -102,10 +103,8 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 printf("Enter IP associated with that domain.\n");
                 get_valid_ip_address(&buff_ip);
 
-                    fprintf(file, "%s IN A %s", buff_domain, buff_ip);
+                fprintf(file, "%s IN A %s", buff_domain, buff_ip);
                 strcpy(*ip, buff_ip);
-
-                free(buff_ip);
                 break;
             } else if(strcmp(choose, "Canonical\n") == 0){
                 printf("Enter original domain.\n");
@@ -115,19 +114,28 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
 
                 add_extension(orig_domain, "\n");
 
-                file = fopen(file_name, "at");
-
-                fprintf(file, "%s IN CNAME %s", buff_domain, orig_domain);
-
-                free(orig_domain);
                 fclose(file);
+                file = fopen(file_name, "at");
+                if (file == NULL)
+                {
+                    free(buff_ip);
+                    free(orig_domain);
+                    free(choose);
+                    free(buff_domain);
+                    return;
+                }
+                fprintf(file, "%s IN CNAME %s", buff_domain, orig_domain);
+                free(buff_ip);
+                free(orig_domain);
                 free(choose);
                 strcpy(*domain, buff_domain);
                 free(buff_domain);
+                fclose(file);
                 return;
             }
         }
     }
+    free(buff_ip);
     fclose(file);
     free(choose);
     strcpy(*domain, buff_domain);
@@ -143,18 +151,18 @@ char *get_ip_from_file(FILE *file, const char *key){
     rewind(file);
     while(fgets(line, MAX_LINE_LENGTH, file) != NULL){
         strcpy(buff_line, line);
-        buff_line[strcspn(buff_line, " ")] = '\0';
+        replace_char(buff_line, ' ', '\0');
 
         if(strcmp(buff_line, key) == 0)
         {
-            if(line[strlen(buff_line) + 4] == 'A')
+            if(strlen(buff_line) + 4 < strlen(line) && line[strlen(buff_line) + 4] == 'A')
             {
                 strcpy(ip, (line + strlen(buff_line) + 6));
                 free(line);
                 free(buff_line);
                 return ip;
             }
-            else if(line[strlen(buff_line) + 4] == 'C')
+            else if(strlen(buff_line) + 4 < strlen(line) && line[strlen(buff_line) + 4] == 'C')
             {
                 strcpy(ip, (line + strlen(buff_line) + 10));
                 ip[strcspn(ip, "\n")] = '\0';

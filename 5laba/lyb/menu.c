@@ -48,19 +48,17 @@ void domain_to_ip(CACHE *cache, const char *file_name)
                 exit(EXIT_FAILURE);
 
             ip = get_ip_from_file(file, domain);
-           //add_to_cache(cache, domain, ip);
             put(cache, domain, ip);
             printf("MISS - %s", ip);
         } else {
-            //get(cache, domain);
             update_position(&cache, domain);
             printf("HIT - %s", value);
         }
         print_cache(cache);
 
-       // printf("Do you want to continue?\n");
-       // get_line(&expression);
-       // get_input(expression, "Yes\n", "No\n");
+       printf("Do you want to continue?\n");
+       get_line(&expression);
+       get_input(expression, "Yes\n", "No\n");
     }
     free(expression);
     free(ip);
@@ -79,7 +77,7 @@ void print_ip(const CACHE *cache) {
 
 
 
-int find_ip(CACHE *cache, const char *value) {
+int find_ip(const CACHE *cache, const char *value) {
     for (int i = 0; i < CACHE_SIZE; i++) {
         NODE *node = cache->hash[i];
         while (node != NULL) {
@@ -111,34 +109,6 @@ void find_ip_domains(const CACHE *cache, const char *file_name){
     ip_to_domains(file, ip);
     fclose(file);
 }
-
-
-void find_ip_domains1(const char *file_name, char *ip){
-    FILE *file;
-    char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    char *buff_line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    char *buff_ip = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    file = fopen(file_name, "rt");
-        while(fgets(line, MAX_LINE_LENGTH, file) != NULL) {
-            strcpy(buff_line, line);
-            buff_line[strcspn(buff_line, " ")] = '\0';
-
-            if (line[strlen(buff_line) + 4] == 'A') {
-                strcpy(buff_ip, (line + strlen(buff_line) + 6));
-                if(strcmp(buff_ip, ip) == 0)
-                    printf("%s", buff_line);
-            } else if (line[strlen(buff_line) + 4] == 'C') {
-                strcpy(buff_ip, (line + strlen(buff_line) + 10));
-                //ip[strcspn(buff_ip, "\n")] = '\0';
-                if(strcmp(buff_ip, ip) == 0)
-                    printf("%s", buff_line);
-                find_ip_domains1(file_name, buff_ip);
-            }
-        }
-    free(line);
-    fclose(file);
-}
-
 void domain_to_ips(const char *filename, const char *domain) {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -148,7 +118,9 @@ void domain_to_ips(const char *filename, const char *domain) {
 
     char line[256];
     while (fgets(line, sizeof(line), fp)) {
-        char *ptr = strtok(line, " \t\n");
+        char *ptr;
+        char *save_ptr;
+        ptr = strtok_r(line, " \t\n", &save_ptr);
         if (ptr == NULL) {
             continue;
         }
@@ -157,7 +129,7 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok(NULL, " \t\n");
+        ptr = strtok_r(line, " \t\n", &save_ptr);
         if (ptr == NULL) {
             continue;
         }
@@ -166,18 +138,18 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok(NULL, " \t\n");
+        ptr = strtok_r(line, " \t\n", &save_ptr);
         if (ptr == NULL) {
             continue;
         }
 
         if (strcmp(ptr, "A") == 0) {
-            ptr = strtok(NULL, " \t\n");
+            ptr = strtok_r(line, " \t\n", &save_ptr);
             if (ptr != NULL) {
                 printf("%s\n", ptr);
             }
         } else if (strcmp(ptr, "CNAME") == 0) {
-            ptr = strtok(NULL, " \t\n");
+            ptr = strtok_r(line, " \t\n", &save_ptr);
             if (ptr != NULL) {
                 domain_to_ips(filename, ptr);
             }
@@ -199,7 +171,7 @@ void ip_to_domains(FILE *file, const char *ip) {
             position = line - pos;
             strcpy(buff_ip, (line - (int)position) + 6);
             buff_ip[strcspn(buff_ip, "\n")] = '\0';
-            line[strcspn(line, " ")] = '\0';
+            replace_char(line, ' ', '\0');
             find_original(file, buff_ip, ip, line);
 
         } else{
@@ -207,7 +179,7 @@ void ip_to_domains(FILE *file, const char *ip) {
             position = line - pos;
             strcpy(buff_ip, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
-                line[strcspn(line, " ")] = '\0';
+                replace_char(line, ' ', '\0');
                 printf("%s\n",  line);
             }
         }
@@ -230,7 +202,7 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
             pos = strstr(line, " ");
             position = line - pos;
             strcpy(buff_ip, (line - (int) position) + 6);
-            line[strcspn(line, " ")] = '\0';
+            replace_char(line, ' ', '\0');
             if (strcmp(line, domain) == 0 && strcmp(buff_ip, ip) == 0) {
                 printf("%s\n",  print);
             }
@@ -239,11 +211,11 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
     free(line);
     free(buff_ip);
     free(buff_line);
-    fseek(file, pos1, SEEK_SET);
+    fseek(file, (long)pos1, SEEK_SET);
 }
 void print_ip_from_file(const char *file_name) {
     char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    char *pos;
+    const char *pos;
     long double position;
     FILE *file;
     file = fopen(file_name, "rt");
@@ -273,7 +245,7 @@ void print_ip_from_file(const char *file_name) {
 
 int is_in_file(const char *file_name, const char *ip) {
     char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    char *pos;
+    const char *pos;
     long double position;
     FILE *file;
     file = fopen(file_name, "rt");
@@ -291,20 +263,38 @@ int is_in_file(const char *file_name, const char *ip) {
             buff_ip[strcspn(buff_ip, "\n")] = '\0';
             if(strcmp(buff_ip, ip) == 0)
             {
+                free1(buff_ip, line, file);
                 return 1;
             }
-
         } else{
             pos = strstr(line, " ");
             position = line - pos;
             strcpy(buff_ip, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
-                return 1;
+                {
+                    free1(buff_ip, line, file);
+                    return 1;
+                }
             }
         }
     }
-    free(buff_ip);
-    free(line);
-    fclose(file);
+    free1(buff_ip, line, file);
     return 0;
+}
+
+void replace_char(char *line, char old_char, char new_char)
+{
+    size_t length = strlen(line);
+    for (int i = 0; i < length; i++) {
+        if (line[i] == old_char) {
+            line[i] = new_char;
+        }
+    }
+}
+
+void free1(char *str1, char *str2, FILE *file)
+{
+    free(str1);
+    free(str2);
+    fclose(file);
 }

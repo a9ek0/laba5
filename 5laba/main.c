@@ -1,4 +1,5 @@
-#include "lyb/functions.h"
+#include "lyb/menu.h"
+#include "lyb/cache.h"
 
 int main() {
 
