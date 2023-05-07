@@ -201,7 +201,7 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
         if (pos == NULL) {
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy_s(buff_ip, (line - (int) position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int) position) + 6);
             replace_char(line, ' ', '\0');
             if (strcmp(line, domain) == 0 && strcmp(buff_ip, ip) == 0) {
                 printf("%s\n",  print);
@@ -259,7 +259,7 @@ int is_in_file(const char *file_name, const char *ip) {
         pos = strstr(line, "CNAME");
         if(pos != NULL){
             position = line - pos;
-            strcpy_s(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             buff_ip[strcspn(buff_ip, "\n")] = '\0';
             if(strcmp(buff_ip, ip) == 0)
             {
@@ -269,7 +269,7 @@ int is_in_file(const char *file_name, const char *ip) {
         } else{
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy_s(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
                 {
                     free1(buff_ip, line, file);

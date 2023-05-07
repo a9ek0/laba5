@@ -128,7 +128,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 free(buff_ip);
                 free(orig_domain);
                 free(choose);
-                strcpy_s(*domain, buff_domain);
+                strcpy_s(*domain, MAX_LINE_LENGTH, buff_domain);
                 free(buff_domain);
                 fclose(file);
                 return;
