@@ -119,8 +119,7 @@ void domain_to_ips(const char *filename, const char *domain) {
     char line[256];
     while (fgets(line, sizeof(line), fp)) {
         char *ptr;
-        char *save_ptr;
-        ptr = strtok_r(line, " \t\n", &save_ptr);
+        ptr = strtok(line, " \t\n");
         if (ptr == NULL) {
             continue;
         }
@@ -129,7 +128,7 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok_r(line, " \t\n", &save_ptr);
+        ptr = strtok(line, " \t\n");
         if (ptr == NULL) {
             continue;
         }
@@ -138,18 +137,18 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok_r(line, " \t\n", &save_ptr);
+        ptr = strtok(line, " \t\n");
         if (ptr == NULL) {
             continue;
         }
 
         if (strcmp(ptr, "A") == 0) {
-            ptr = strtok_r(line, " \t\n", &save_ptr);
+            ptr = strtok(line, " \t\n");
             if (ptr != NULL) {
                 printf("%s\n", ptr);
             }
         } else if (strcmp(ptr, "CNAME") == 0) {
-            ptr = strtok_r(line, " \t\n", &save_ptr);
+            ptr = strtok(line, " \t\n");
             if (ptr != NULL) {
                 domain_to_ips(filename, ptr);
             }
