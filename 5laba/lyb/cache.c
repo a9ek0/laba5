@@ -59,14 +59,14 @@ void dell_from_hash(CACHE *cache, const char *key) {
 void put(CACHE *cache, const char *key, const char *value) {
     char *existing_value = get(cache, key);
     if (existing_value != NULL) {
-        strncpy(existing_value, value, strlen(value) + 1);
+        strncpy_s(existing_value, strlen(value) + 1, value, strlen(value) + 1);
         return;
     }
     NODE *node = (NODE*) malloc(sizeof(NODE));
     node->key = (char*) malloc(strlen(key) + 1);
     node->value = (char*) malloc(strlen(value) + 1);
-    strncpy(node->key, key, strlen(key) + 1);
-    strncpy(node->value, value, strlen(value) + 1);
+    strncpy_s(node->key, strlen(key) + 1, key, strlen(key) + 1);
+    strncpy_s(node->value, strlen(value) + 1, value, strlen(value) + 1);
     node->next = NULL;
     node->prev = NULL;
     if(cache->head == NULL) {
@@ -119,47 +119,6 @@ void dell_tail(CACHE *cache) {
     free(node_to_remove->key);
     free(node_to_remove->value);
     free(node_to_remove);
-}
-
-
-
-void add_to_cache(CACHE *cache, const char *key, const char *value) {
-
-    int hash = calculate_hash(key);
-    NODE *hash_node = (NODE*) malloc(sizeof(NODE));
-    NODE *cache_node = (NODE*) malloc(sizeof(NODE));
-    cache_node->key = strdup(key);
-    hash_node->value = strdup(value);
-    hash_node->next = cache_node->next = NULL;
-    hash_node->prev = cache_node->prev = NULL;
-
-    if(cache->hash[hash] == NULL) {
-        cache->hash[hash] = hash_node;
-    } else {
-        NODE *tmp = cache->hash[hash];
-        while(tmp->next != NULL) {
-            tmp = tmp->next;
-        }
-        tmp->next = hash_node;
-        hash_node->prev = tmp;
-    }
-
-    if(cache->head == NULL) {
-        cache->head = cache_node;
-        cache->tail = cache_node;
-    } else {
-        cache_node->next = cache->head;
-        cache->head->prev = cache_node;
-        cache->head = cache_node;
-        cache->tail->next = NULL;
-    }
-    cache->size++;
-
-    if(cache->size > CACHE_SIZE) {
-        cache->size--;
-        dell_oldest_from_cache(&cache);
-    }
-
 }
 
 int calculate_hash(const char *key){

@@ -52,14 +52,14 @@ void get_line(char **line) {
 char *add_extension(char *word, const char *extension)
 {
     word[strcspn(word, "\n")] = '\0';
-    strcat(word, extension);
+    strcat_s(word, MAX_LINE_LENGTH, extension);
     return word;
 }
 
 void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain, char **ip){
 
     FILE *file;
-    file = fopen(file_name, "rt");
+    fopen_s(&file, file_name, "rt");
 
     if(file == NULL)
         return;
@@ -85,7 +85,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
         } else if (strcmp("Add\n", choose) == 0){
             fclose(file);
 
-            file = fopen(file_name, "at");
+            fopen_s(&file, file_name, "at");
             if(file == NULL)
             {
                 free(buff_ip);
@@ -104,7 +104,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 get_valid_ip_address(&buff_ip);
 
                 fprintf(file, "%s IN A %s", buff_domain, buff_ip);
-                strcpy(*ip, buff_ip);
+                strcpy_s(*ip, MAX_LINE_LENGTH, buff_ip);
                 break;
             } else if(strcmp(choose, "Canonical\n") == 0){
                 printf("Enter original domain.\n");
@@ -115,7 +115,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 add_extension(orig_domain, "\n");
 
                 fclose(file);
-                file = fopen(file_name, "at");
+                fopen_s(&file, file_name, "at");
                 if (file == NULL)
                 {
                     free(buff_ip);
@@ -128,7 +128,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 free(buff_ip);
                 free(orig_domain);
                 free(choose);
-                strcpy(*domain, buff_domain);
+                strcpy_s(*domain, buff_domain);
                 free(buff_domain);
                 fclose(file);
                 return;
@@ -138,7 +138,7 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
     free(buff_ip);
     fclose(file);
     free(choose);
-    strcpy(*domain, buff_domain);
+    strcpy_s(*domain, MAX_LINE_LENGTH, buff_domain);
     free(buff_domain);
 
 }
@@ -150,21 +150,21 @@ char *get_ip_from_file(FILE *file, const char *key){
     line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
     rewind(file);
     while(fgets(line, MAX_LINE_LENGTH, file) != NULL){
-        strcpy(buff_line, line);
+        strcpy_s(buff_line, MAX_LINE_LENGTH, line);
         replace_char(buff_line, ' ', '\0');
 
         if(strcmp(buff_line, key) == 0)
         {
             if(strlen(buff_line) + 4 < strlen(line) && line[strlen(buff_line) + 4] == 'A')
             {
-                strcpy(ip, (line + strlen(buff_line) + 6));
+                strcpy_s(ip, MAX_LINE_LENGTH, (line + strlen(buff_line) + 6));
                 free(line);
                 free(buff_line);
                 return ip;
             }
             else if(strlen(buff_line) + 4 < strlen(line) && line[strlen(buff_line) + 4] == 'C')
             {
-                strcpy(ip, (line + strlen(buff_line) + 10));
+                strcpy_s(ip, MAX_LINE_LENGTH, (line + strlen(buff_line) + 10));
                 ip[strcspn(ip, "\n")] = '\0';
                 char *result = get_ip_from_file(file, ip);
                 free(line);

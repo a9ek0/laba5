@@ -1,13 +1,13 @@
 #include "checks.h"
-int validate_ip_address(const char *ip_address) {
-    char *temp = strdup(ip_address);
-    if (contains_multiple_dots(ip_address) || contains_indents(ip_address)) {
+int validate_ip_address_s(const char *ip_address) {
+    char *temp = _strdup(ip_address);
+    if (strchr(ip_address, '.') != NULL || strchr(ip_address, ':') != NULL) {
         free(temp);
         return 0;
     }
     int dots_count = 0;
     const char *token;
-    token = strtok(NULL, ".");
+    token = strtok_r(temp, ".", &temp);
     while (token != NULL) {
         dots_count++;
         size_t len = strlen(token);
@@ -15,7 +15,7 @@ int validate_ip_address(const char *ip_address) {
             free(temp);
             return 0;
         }
-        for (int i = 0; i < len; i++) {
+        for (size_t i = 0; i < len; i++) {
             if (!isdigit(token[i])) {
                 free(temp);
                 return 0;
@@ -27,7 +27,7 @@ int validate_ip_address(const char *ip_address) {
             free(temp);
             return 0;
         }
-        token = strtok(NULL, ".");
+        token = strtok_r(NULL, ".", &temp);
     }
     free(temp);
     if (dots_count != 4) {
@@ -47,7 +47,7 @@ void get_valid_ip_address(char **ip) {
         buff_ip[strcspn(buff_ip, "\n")] = '\0';
     }
     add_extension(buff_ip, "\n");
-    strcpy(*ip, buff_ip);
+    strcpy_s(*ip, MAX_LINE_LENGTH, buff_ip);
     free(buff_ip);
 }
 

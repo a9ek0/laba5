@@ -33,7 +33,7 @@ void domain_to_ip(CACHE *cache, const char *file_name)
     char *ip = (char*)malloc(MAX_LINE_LENGTH * sizeof (char));
     char *expression = (char*)malloc(MAX_LINE_LENGTH * sizeof(char));
 
-    strcpy(expression, "Yes\n");
+    strcpy_s(expression, MAX_LINE_LENGTH, "Yes\n");
 
     while(strcmp(expression, "Yes\n") == 0 && strcmp(expression, "No\n") != 0){
 
@@ -43,7 +43,7 @@ void domain_to_ip(CACHE *cache, const char *file_name)
 
         if (value == NULL) {
 
-            file = fopen(file_name, "rt");
+            fopen_s(&file, file_name, "rt");
             if(file == NULL)
                 exit(EXIT_FAILURE);
 
@@ -103,21 +103,22 @@ void find_ip_domains(const CACHE *cache, const char *file_name){
 
     }
     FILE *file;
-    file = fopen(file_name, "rt");
+    fopen_s(&file, file_name, "rt");
     if(file == NULL)
         return;
     ip_to_domains(file, ip);
     fclose(file);
 }
 void domain_to_ips(const char *filename, const char *domain) {
-    FILE *fp = fopen(filename, "r");
-    if (fp == NULL) {
+    FILE *file;
+    fopen_s(&file, filename, "rt");
+    if (file == NULL) {
         printf("Error opening file\n");
         return;
     }
 
     char line[256];
-    while (fgets(line, sizeof(line), fp)) {
+    while (fgets(line, sizeof(line), file)) {
         char *ptr;
         ptr = strtok(line, " \t\n");
         if (ptr == NULL) {
@@ -155,20 +156,20 @@ void domain_to_ips(const char *filename, const char *domain) {
         }
     }
 
-    fclose(fp);
+    fclose(file);
 }
 
 void ip_to_domains(FILE *file, const char *ip) {
     char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
     char *buff_ip = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
     const char *pos;
-    long double position;
+    long long position;
 
     while(fgets(line, MAX_LINE_LENGTH, file) != NULL){
         pos = strstr(line, "CNAME");
         if(pos != NULL){
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             buff_ip[strcspn(buff_ip, "\n")] = '\0';
             replace_char(line, ' ', '\0');
             find_original(file, buff_ip, ip, line);
@@ -176,7 +177,7 @@ void ip_to_domains(FILE *file, const char *ip) {
         } else{
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
                 replace_char(line, ' ', '\0');
                 printf("%s\n",  line);
@@ -192,7 +193,7 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
     char *buff_ip = (char *) malloc(MAX_LINE_LENGTH * sizeof(char));
     char *buff_line = (char *) malloc(MAX_LINE_LENGTH * sizeof(char));
     const char *pos;
-    long double position;
+    long long position;
     size_t pos1 = ftell(file);
     rewind(file);
     while (fgets(line, MAX_LINE_LENGTH, file) != NULL) {
@@ -200,7 +201,7 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
         if (pos == NULL) {
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy(buff_ip, (line - (int) position) + 6);
+            strcpy_s(buff_ip, (line - (int) position) + 6);
             replace_char(line, ' ', '\0');
             if (strcmp(line, domain) == 0 && strcmp(buff_ip, ip) == 0) {
                 printf("%s\n",  print);
@@ -215,9 +216,9 @@ void find_original(FILE *file, const char *domain, const char *ip, const char *p
 void print_ip_from_file(const char *file_name) {
     char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
     const char *pos;
-    long double position;
+    long long position;
     FILE *file;
-    file = fopen(file_name, "rt");
+    fopen_s(&file, file_name, "rt");
     if(file == NULL)
     {
         free(line);
@@ -228,12 +229,12 @@ void print_ip_from_file(const char *file_name) {
         pos = strstr(line, "CNAME");
         if(pos != NULL){
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             printf("%s",  buff_ip);
         } else{
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             printf("%s",  buff_ip);
         }
     }
@@ -245,9 +246,9 @@ void print_ip_from_file(const char *file_name) {
 int is_in_file(const char *file_name, const char *ip) {
     char *line = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
     const char *pos;
-    long double position;
+    long long position;
     FILE *file;
-    file = fopen(file_name, "rt");
+    fopen_s(&file, file_name, "rt");
     if(file == NULL)
     {
         free(line);
@@ -258,7 +259,7 @@ int is_in_file(const char *file_name, const char *ip) {
         pos = strstr(line, "CNAME");
         if(pos != NULL){
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, (line - (int)position) + 6);
             buff_ip[strcspn(buff_ip, "\n")] = '\0';
             if(strcmp(buff_ip, ip) == 0)
             {
@@ -268,7 +269,7 @@ int is_in_file(const char *file_name, const char *ip) {
         } else{
             pos = strstr(line, " ");
             position = line - pos;
-            strcpy(buff_ip, (line - (int)position) + 6);
+            strcpy_s(buff_ip, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
                 {
                     free1(buff_ip, line, file);
