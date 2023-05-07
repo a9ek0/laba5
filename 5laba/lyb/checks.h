@@ -1,6 +1,7 @@
 #ifndef INC_5LABA_CHECKS_H
 #define INC_5LABA_CHECKS_H
 #include "cache.h"
+#include <string.h>
 #include "structures.h"
 
 int validate_ip_address(const char *ip_address);

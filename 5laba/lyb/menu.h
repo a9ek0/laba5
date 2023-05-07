@@ -2,6 +2,7 @@
 #define INC_5LABA_MENU_H
 #include "cache.h"
 #include "structures.h"
+#include <string.h>
 #include <stdarg.h>
 void menu(CACHE *cache, const char *file_name);
 void domain_to_ip(CACHE *cache, const char *file_name);
