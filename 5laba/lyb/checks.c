@@ -8,7 +8,7 @@ int validate_ip_address(const char *ip_address) {
     int dots_count = 0;
     const char *token;
     char *tmp = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
-    token = strtok_r(temp, ".", &tmp);
+    token = strtok_s(temp, ".", &tmp);
     while (token != NULL) {
         dots_count++;
         size_t len = strlen(token);
@@ -28,7 +28,7 @@ int validate_ip_address(const char *ip_address) {
             free(temp);
             return 0;
         }
-        token = strtok_r(NULL, ".", &tmp);
+        token = strtok_s(NULL, ".", &tmp);
     }
     free(temp);
     if (dots_count != 4) {
