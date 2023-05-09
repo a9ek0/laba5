@@ -67,12 +67,13 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
     char *buff_domain = (char*) malloc (MAX_LINE_LENGTH * sizeof (char));
     char *buff_ip = (char*) malloc (MAX_LINE_LENGTH * sizeof (char));
     char *choose = (char*) malloc (MAX_LINE_LENGTH * sizeof (char));
+    char *ipp;
 
     printf("Enter domain name of the site to get IP.\n");
     get_line(&buff_domain);
     buff_domain[strcspn(buff_domain, "\n")] = '\0';
-
-    while(find_in_cache(buff_domain, cache) == NULL && get_ip_from_file(file, buff_domain) == NULL)
+    ipp = get_ip_from_file(file, buff_domain);
+    while(find_in_cache(buff_domain, cache) == NULL &&  ipp == NULL)
     {
         printf("This domain is not in the database try another one or add this buff_domain.(Try/Add)\n");
         get_line(&choose);
@@ -114,16 +115,6 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
 
                 add_extension(orig_domain, "\n");
 
-                fclose(file);
-                fopen_s(&file, file_name, "at");
-                if (file == NULL)
-                {
-                    free(buff_ip);
-                    free(orig_domain);
-                    free(choose);
-                    free(buff_domain);
-                    return;
-                }
                 fprintf(file, "%s IN CNAME %s", buff_domain, orig_domain);
                 free(buff_ip);
                 free(orig_domain);
@@ -134,7 +125,9 @@ void get_ip_and_domain(const CACHE *cache, const char *file_name, char **domain,
                 return;
             }
         }
+        ipp = get_ip_from_file(file, buff_domain);
     }
+    free(ipp);
     free(buff_ip);
     fclose(file);
     free(choose);

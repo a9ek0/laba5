@@ -120,7 +120,8 @@ void domain_to_ips(const char *filename, const char *domain) {
     char line[256];
     while (fgets(line, sizeof(line), file)) {
         char *ptr;
-        ptr = strtok(line, " \t\n");
+        char *tmp = (char*) malloc(MAX_LINE_LENGTH * sizeof (char));
+        ptr = strtok_r(line, " \t\n", &tmp);
         if (ptr == NULL) {
             continue;
         }
@@ -129,7 +130,7 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok(line, " \t\n");
+        ptr = strtok_r(line, " \t\n", &tmp);
         if (ptr == NULL) {
             continue;
         }
@@ -138,18 +139,18 @@ void domain_to_ips(const char *filename, const char *domain) {
             continue;
         }
 
-        ptr = strtok(line, " \t\n");
+        ptr = strtok_r(line, " \t\n", &tmp);
         if (ptr == NULL) {
             continue;
         }
 
         if (strcmp(ptr, "A") == 0) {
-            ptr = strtok(line, " \t\n");
+            ptr = strtok_r(line, " \t\n", &tmp);
             if (ptr != NULL) {
                 printf("%s\n", ptr);
             }
         } else if (strcmp(ptr, "CNAME") == 0) {
-            ptr = strtok(line, " \t\n");
+            ptr = strtok_r(line, " \t\n", &tmp);
             if (ptr != NULL) {
                 domain_to_ips(filename, ptr);
             }
@@ -271,10 +272,8 @@ int is_in_file(const char *file_name, const char *ip) {
             position = line - pos;
             strcpy_s(buff_ip, MAX_LINE_LENGTH, (line - (int)position) + 6);
             if(strcmp(buff_ip, ip) == 0){
-                {
                     free1(buff_ip, line, file);
                     return 1;
-                }
             }
         }
     }
